@@ -1,1 +1,211 @@
-### Hola
+In this tutorial, I’ll walk you through how to set up Browsersync with [Gulp](https://coder-coder.com/gulp-4-walk-through/) in a basic front-end workflow.
+
+We’ll be working with HTML, Sass and JavaScript files, and create this fancy shmancy website! 😄
+
+[Browsersync](https://www.browsersync.io/) is a powerful tool that enables you to test your website in real time. It works by spinning up a local server and syncing it up to your browser.
+
+Then, anytime you make a change in your code or files, it will reload the browser to update it immediately.
+
+Using Browsersync will help you code faster and more efficiently. It’s an incredibly helpful tool that any web developer should know how to use.
+
+![VS Code with code and local website loaded via Browsersync on right](https://coder-coder.com/wp-content/uploads/2020/11/gulp-browsersync-website.jpg)
+
+**Note:** if you are already familiar with Gulp and are just looking for the Browsersync code to add to your gulpfile, [click here](#adding-browsersync-to-your-gulpfile) to jump down to the Browersync section.
+
+Setting up the project
+----------------------
+
+Want to code along with this tutorial? I created a [GitHub repo](https://github.com/thecodercoder/gulp-browsersync) that contains all the starter files for this project.
+
+Either clone or download the GitHub repo, and open the folder in your favorite code editor (I like VS Code, personally).
+
+Here’s a rundown of the project structure and what types of files we have:
+
+```bash
+[gulp-browsersync]
+  |-- [app]
+    |-- [js]
+            |-- script.js
+    |-- [scss]
+            |-- style.scss
+  |-- [dist]
+  |-- [img]
+  |-- gulpfile.js
+  |-- index.html
+  |-- package-lock.json
+  |-- package.json
+```
+
+In the project root we have our `index.html`, `package.json`, `package-lock.json`, and `gulpfile.js` files.
+
+And we have some folders: `app`, `dist`, and `img`.
+
+In the `app` folder we have a `js` subfolder, containing the `script.js` file.
+
+And we have an `scss` subfolder with the `style.scss` file. We’re keeping things minimal here, with just a single JavaScript and SCSS file.
+
+The `dist` folder is where we will put our compiled CSS and JavaScript files. And the `img` folder is for our background image.
+
+Configuring Gulp
+----------------
+
+Let’s install the npm packages that we’ll need, and take a look at our Gulp workflow.
+
+### Installing packages and importing modules
+
+To install the packages, open a terminal or command line window and navigate to the project directory.
+
+Then run `npm install` to install the packages listed in the `package.json`file. I’d also recommend running `npm update` afterwards to make sure you are using the newest versions of each package. Just because the versions I have in the GitHub repo will get out of date as time goes on.
+
+Once you have everything installed, let’s take a look at our gulpfile.
+
+Importing modules
+-----------------
+
+First off, we are importing the npm packages that we installed as modules. This enables us to access the package functions in our Gulp tasks. Here’s what that looks like in the code:
+
+
+```js
+    const { src, dest, watch, series } = require('gulp');
+    const sass = require('gulp-sass');
+    const postcss = require('gulp-postcss');
+    const cssnano = require('cssnano');
+    const terser = require('gulp-terser');
+    const browsersync = require('browser-sync').create();
+```  
+
+At the top, we are importing some Gulp functions: `src`, `dest`, `watch`, and `series`.
+
+Then we are loading the other packages:
+
+*   `gulp-sass`, which compiles Sass files to CSS
+*   `gulp-postcss` and the `cssnano` plugin, which minify the final CSS file
+*   `gulp-terser`, which minifies our JavaScript file
+*   `browser-sync`, which runs and syncs a local server to our website files
+
+We’re keeping the workflow in this project minimal since the focus is on Browsersync.
+
+> If you are looking for a more detailed Gulp tutorial, check out [my Gulp 4 tutorial here](https://coder-coder.com/gulp-4-walk-through/) that will walk you through the basics.
+> 
+> I also have an in-depth [Gulp course](https://coder-coder.com/gulp-course/) covering a more customized workflow!
+
+Now, let’s take a look at the different Gulp tasks we’ve configured in our gulpfile.
+
+### Sass task
+
+The first task is our Sass task:
+
+```js
+// Sass Task
+function scssTask(){
+    return src('app/scss/style.scss', { sourcemaps: true })
+        .pipe(sass())
+        .pipe(postcss([cssnano()]))
+        .pipe(dest('dist', { sourcemaps: '.' }));
+}
+``` 
+
+This function will take the `style.scss` file, compile it to CSS using the `sass()` function, then use PostCSS to minify the file with `cssnano()`, and finally save the resulting CSS file in the `dist` folder. We’re also creating a sourcemap file so you can see where in the Sass file each style rule comes from.
+
+### JavaScript task
+
+The next task is our JavaScript task:
+
+```js
+// JavaScript Task
+function jsTask(){
+    return src('app/js/script.js', { sourcemaps: true })
+        .pipe(terser())
+        .pipe(dest('dist', { sourcemaps: '.' }));
+}
+```
+
+This function takes the `script.js` file and minifies it using `terser()`, then saves the resulting file in the `dist` folder. It also will create a sourcemap file. We’re not doing anything more advanced like bundling, just assuming that we’re working with vanilla JavaScript here.
+
+Let’s move on to the Browsersync section now!
+
+Adding Browsersync to your Gulpfile
+-----------------------------------
+
+In our gulpfile, we initially imported Browsersync as a JavaScript constant with this line: `const browsersync = require('browser-sync').create();`. The `create()` function, as the name implies, [creates a Browsersync instance](https://www.browsersync.io/docs/api#api-create) that we can then use to run our local server.
+
+We can then create our Browsersync tasks!
+
+### BrowsersyncServe task
+
+Our first task, `browsersyncServe`, will initialize the local server:
+
+```js
+function browsersyncServe(cb){
+    browsersync.init({
+        server: {
+            baseDir: '.'
+        }    
+    });
+    cb();
+}
+```  
+
+It runs the `browsersync.init()` function which launches the local server, using the `baseDir` server option. In our case, we want to set `baseDir` to `'.'`. This indicates that the local server will launch the website from the same directory as the gulpfile is in.
+
+Since both the `index.html` file and the gulpfile are in the project root, we want the website to run from the same location.
+
+If you’re wondering what the `cb` parameter is, it’s a callback function. In Gulp, all tasks are asynchronous JavaScript functions, so if a function isn’t returning anything, we have to use the callback to explicitly signify that the function is complete.
+
+Both our Browsersync Gulp tasks are not returning a stream like the other tasks, so they both have callbacks. You can read more about callbacks and asynchronous functions in Gulp in their [documentation](https://gulpjs.com/docs/en/getting-started/async-completion/).
+
+The `browsersyncServe` task will start the server, but we also want to automatically reload the browser when we make code changes.
+
+### BrowsersyncReload task
+
+To reload the server, we have another task, `browsersyncReload` which will do just that:
+
+```js
+function browsersyncReload(cb){
+    browsersync.reload();
+    cb();
+}
+```
+
+It’s a pretty basic function– the only thing it does is run `browsersync.reload()` to tell Browsersync to reload the local website.
+
+Now that we have our Browsersync tasks set up, let’s integrate them into our Gulp workflow!
+
+Adding Browsersync to Gulp tasks
+--------------------------------
+
+### Default task
+
+In our default Gulp task, we’re going to run all the tasks that we want to execute once when we first run `gulp` on the command line.
+
+```js
+// Default Gulp Task
+exports.default = series(
+    scssTask,
+    jsTask,
+    browsersyncServe,
+    watchTask
+);
+```
+
+As you can see in the code, we’re running our Sass and JavaScript tasks, then initializing the Browsersync server, and finally running our watch task.
+
+### Watch task
+
+The watch task will monitor our files and run the necessary tasks when it detects code changes.
+
+```js
+// Watch Task
+function watchTask(){
+    watch('*.html', browsersyncReload);
+    watch(['app/**/*.scss', 'app/**/*.js'], series(scssTask, jsTask, browsersyncReload));
+}
+```
+      
+
+We are doing two things in our watch task:
+
+*   Watch any HTML files and run `browsersyncReload` after any changes
+*   Watch any Sass or JavaScript files and run the Sass task, JavaScript task, and then `browsersyncReload` after any changes
+
+I kept them separate because I didn’t want to run the Sass and JavaScript tasks when we’ve only updated the HTML file. Of course, you can re-run every task when the HTML is changed– it will just take a bit longer.

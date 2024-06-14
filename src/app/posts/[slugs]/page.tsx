@@ -18,7 +18,11 @@ export default async function Home() {
   try {
     const mdxText = await getPost("test");
 
-    return <MDXRemote source={mdxText} />;
+    return (
+      <article className="w-full max-w-3xl m-auto">
+        <MDXRemote source={mdxText} />
+      </article>
+    );
 
   } catch (e) {
     notFound();
