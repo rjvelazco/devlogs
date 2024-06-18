@@ -3,24 +3,20 @@ import { readFile } from "node:fs";
 import { promisify } from "util";
 
 import { notFound } from "next/navigation";
-import { MDXRemote } from 'next-mdx-remote/rsc'
+import { compileMDX } from 'next-mdx-remote/rsc'
+import { mdxOptions } from "@/app/utils";
 
 const postsPath = path.join(process.cwd(), "/src/posts");
 const readFileAsync = promisify(readFile);
 
-const getPost = async (post: string) => {
-  const fileContent = await readFileAsync(`${postsPath}/${post}.mdx`, "utf8");
-
-  return fileContent;
-};
-
 export default async function Home() {
   try {
-    const mdxText = await getPost("test");
-
+    const source = await readFileAsync(`${postsPath}/${'test'}.mdx`, "utf8");
+    const { content } = await compileMDX({ source, options: mdxOptions});
+    
     return (
       <article className="w-full max-w-3xl m-auto">
-        <MDXRemote source={mdxText} />
+        {content}
       </article>
     );
 

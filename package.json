@@ -16,7 +16,9 @@
     "next": "14.2.4",
     "next-mdx-remote": "^5.0.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "rehype-pretty-code": "^0.13.2",
+    "shiki": "^1.7.0"
   },
   "devDependencies": {
     "@types/node": "^20",
