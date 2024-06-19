@@ -15,7 +15,7 @@ export default async function Home() {
     const { content } = await compileMDX({ source, options: mdxOptions});
     
     return (
-      <article className="w-full max-w-3xl m-auto">
+      <article className="w-full max-w-3xl m-auto px-4">
         {content}
       </article>
     );
