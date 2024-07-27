@@ -10,7 +10,6 @@
 
 @layer base {
   body {
-    @apply bg-neutral-50;
     color: #333;
   }
 
@@ -19,7 +18,7 @@
     @apply font-sans;
   }
 
-  h1,
+  /* h1,
   h2,
   h3,
   h4,
@@ -79,7 +78,7 @@
 
   ol {
     @apply list-decimal;
-  }
+  } */
 
   pre {
     @apply py-4 rounded mb-6;
